@@ -4,7 +4,7 @@ import asyncio
 import base64
 import json
 # from configure import auth_key
-auth_key = "1d1c787fc47243c397f60440707952bc"
+# auth_
 
 import pyaudio
 

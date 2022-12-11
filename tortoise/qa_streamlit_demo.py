@@ -39,9 +39,7 @@ def getReply():
 
 if __name__ == "__main__":
     print("new bot")
-    cohere_api_key = "M9DwuUQTg9twYRzxX8eBRH5YIVLeWYIecxtJT0Jt"
-    serp_api_key = "f0107df8a8a0b7fb500a98eec8b200c39c88b89afc6e74d5ddf0838f33a8ed2a"
-    bot = GroundedQaBot(cohere_api_key, serp_api_key)
+    bot = GroundedQaBot(st.secrets["cohere_api_token"], st.secrets["serp_api_key"])
 
     st.set_page_config(layout="wide")
 

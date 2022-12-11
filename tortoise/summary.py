@@ -3,7 +3,6 @@ from PIL import Image
 import pytesseract
 import sys
 
-api_key = "M9DwuUQTg9twYRzxX8eBRH5YIVLeWYIecxtJT0Jt"
 co = cohere.Client(api_key)
 min_text_threshold = 250 # characters
 max_text_threshold = 430 # characters

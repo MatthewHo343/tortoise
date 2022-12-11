@@ -1,0 +1,140 @@
+The control of a large force is the same principle as the control of a few men.
+it is merely a question of dividing up their numbers.
+
+— Sun Zi, The Art of War (c. 400CE), translated by Lionel Giles (1910)
+
+Our life is frittered away by detail... Simplify, simplify.
+— Henry David Thoreau, Walden (1854)
+
+Now, don't ask me what Voom is. | never will know.
+But, boy! Let me tell you, it DOES clean up snow!
+
+— Dr. Seuss [Theodor Seuss Geisel], The Cat in the Hat Comes Back (1958)
+
+Do the hard jobs first. The easy jobs will take care of themselves.
+— attributed to Dale Carnegie
+
+1
+
+Recursion
+
+1.1. Reductions
+
+Reduction is the single most common technique used in designing algorithms.
+Reducing one problem X to another problem Y means to write an algorithm
+for X that uses an algorithm for Y as a black box or subroutine. Crucially, the
+correctness of the resulting algorithm for X cannot depend in any way on how
+the algorithm for Y works. The only thing we can assume is that the black box
+solves Y correctly. The inner workings of the black box are simply none of our
+business; they’re somebody else’s problem. It’s often best to literally think of the
+black box as functioning purely by magic.
+
+For example, the peasant multiplication algorithm described in the previous
+chapter reduces the problem of multiplying two arbitrary positive integers to
+three simpler problems: addition, mediation (halving), and parity-checking. The
+algorithm relies on an abstract “positive integer” data type that supports those
+three operations, but the correctness of the multiplication algorithm does not
+
+21
+
+1, RECURSION
+
+depend on the precise data representation (tally marks, clay tokens, Babylonian
+hexagesimal, quipu, counting rods, Roman numerals, finger positions, augrym
+stones, gobar numerals, binary, negabinary, Gray code, balanced ternary, phinary,
+quater-imaginary, ...), or on the precise implementations of those operations.
+Of course, the running time of the multiplication algorithm depends on the
+running time of the addition, mediation, and parity operations, but that’s
+a separate issue from correctness. Most importantly, we can create a more
+efficient multiplication algorithm just by switching to a more efficient number
+representation (from tally marks to place-value notation, for example).
+
+Similarly, the Huntington-Hill algorithm reduces the problem of apportioning
+Congress to the problem of maintaining a priority queue that supports the
+operations INSERT and ExTRAcTMax. The abstract data type “priority queue” is
+a black box; the correctness of the apportionment algorithm does not depend
+on any specific priority queue data structure. Of course, the running time of
+the apportionment algorithm depends on the running time of the INSERT and
+ExTRACTMAx algorithms, but that’s a separate issue from the correctness of the
+algorithm. The beauty of the reduction is that we can create a more efficient
+apportionment algorithm by simply swapping in a new priority queue data
+structure. Moreover, the designer of that data structure does not need to know
+or care that it will be used to apportion Congress.
+
+When we design algorithms, we may not know exactly how the basic building
+blocks we use are implemented, or how our algorithms might be used as building
+blocks to solve even bigger problems. That ignorance is uncomfortable for many
+beginners, but it is both unavoidable and extremely useful. Even when you
+do know precisely how your components work, it is often extremely helpful to
+pretend that you don’t.
+
+1.2 Simplify and Delegate
+
+Recursion is a particularly powerful kind of reduction, which can be described
+loosely as follows:
+
+¢ If the given instance of the problem can be solved directly, solve it directly.
+* Otherwise, reduce it to one or more simpler instances of the same problem.
+If the self-reference is confusing, it may be helpful to imagine that someone else
+is going to solve the simpler problems, just as you would assume for other types
+of reductions. I like to call that someone else the Recursion Fairy. Your only
+task is to simplify the original problem, or to solve it directly when simplification
+
+is either unnecessary or impossible; the Recursion Fairy will solve all the simpler
+subproblems for you, using Methods That Are None Of Your Business So Butt
+
+22
+
+1.2. Simplify and Delegate
+
+Out.’ Mathematically sophisticated readers might recognize the Recursion Fairy
+by its more formal name: the Induction Hypothesis.
+
+There is one mild technical condition that must be satisfied in order for
+any recursive method to work correctly: There must be no infinite sequence of
+reductions to simpler and simpler instances. Eventually, the recursive reductions
+must lead to an elementary base case that can be solved by some other method;
+otherwise, the recursive algorithm will loop forever. The most common way
+to satisfy this condition is to reduce to one or more smaller instances of the
+same problem. For example, if the original input is a skreeble with n glurps, the
+input to each recursive call should be a skreeble with strictly less than n glurps.
+Of course this is impossible if the skreeble has no glurps at all—You can’t have
+negative glurps; that would be silly!—so in that case we must grindlebloff the
+skreeble using some other method.
+
+We've already seen one instance of this pattern in the peasant multiplication
+algorithm, which is based directly on the following recursive identity.
+
+0 ifx =0
+x-y=4[|x/2]-(yt+y) if x is even
+[x/2|-(y+y)+y_ if x is odd
+
+The same recurrence can be expressed algorithmically as follows:
+
+PEASANTMULTIPLY(x, y):
+ifx=0
+return 0
+
+else
+x’ —|x/2]
+yoyty
+prod — PEASANTMULTIPLY(x’, y’) — ((Recurse!))
+if x is odd
+prod — prod+y
+return prod
+
+A lazy Egyptian scribe could execute this algorithm by computing x’ and y’,
+asking a more junior scribe to multiply x’ and y’, and then possibly adding y
+to the junior scribe’s response. The junior scribe’s problem is simpler because
+x’ < x, and repeatedly decreasing a positive integer eventually leads to 0. How
+the junior scribe actually computes x’ - y’ is none of the senior scribe’s business
+(and it’s none of your business, either).
+
+*When I was an undergraduate, | attributed recursion to “elves” instead of the Recursion Fairy,
+referring to the Brothers Grimm story about an old shoemaker who leaves his work unfinished
+when he goes to bed, only to discover upon waking that elves (“Wichtelmanner”) have finished
+everything overnight. Someone more entheogenically experienced than I might recognize these
+
+Rekursionswichtelmanner as Terence McKenna’s “self-transforming machine elves”.
+
+23

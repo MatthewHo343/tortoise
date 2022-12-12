@@ -31,3 +31,13 @@ evaluate==0.3.0
 discord.py==2.0.1
 flask==2.1.2
 waitress==2.1.2
+beautifulsoup4==4.11.1
+cohere==2.8.0
+google_search_results==2.4.1
+numpy==1.20.1
+Pillow==9.3.0
+pyaudio==0.2.12
+pytesseract==0.3.10
+streamlit==1.13.0
+streamlit_chat==0.0.2.1
+websockets==10.1

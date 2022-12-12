@@ -1,16 +1,108 @@
-# Jeeves is back, and this time he's playing for keeps
 import streamlit as st
 from streamlit_chat import message as st_message
 import streamlit.components.v1 as components
 import random
 import string
-
+import websockets
+import asyncio
+import base64
+import json
+import pyaudio
 from qa.bot import GroundedQaBot
 
 source_url = ''
 iframe = None
 source_display = None
 
+if 'text' not in st.session_state:
+	st.session_state['text'] = ""
+	st.session_state['run'] = False
+
+URL = "wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000"
+ 
+FRAMES_PER_BUFFER = 3200
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 16000
+p = pyaudio.PyAudio()
+
+# starts recording
+stream = p.open(
+   format=FORMAT,
+   channels=CHANNELS,
+   rate=RATE,
+   input=True,
+   frames_per_buffer=FRAMES_PER_BUFFER
+)
+
+def start_listening():
+	st.session_state['run'] = True
+
+async def send_receive():
+	
+	print(f'Connecting websocket to url ${URL}')
+
+	async with websockets.connect(
+		URL,
+		extra_headers=(("Authorization", st.secrets["assembly_api_key"]),),
+		ping_interval=5,
+		ping_timeout=20
+	) as _ws:
+
+		r = await asyncio.sleep(0.1)
+		print("Receiving SessionBegins ...")
+
+		session_begins = await _ws.recv()
+		print(session_begins)
+		print("Sending messages ...")
+
+
+		async def send():
+			while st.session_state['run']:
+				try:
+					data = stream.read(FRAMES_PER_BUFFER)
+					data = base64.b64encode(data).decode("utf-8")
+					json_data = json.dumps({"audio_data":str(data)})
+					r = await _ws.send(json_data)
+
+				except websockets.exceptions.ConnectionClosedError as e:
+					print(e)
+					assert e.code == 4008
+					break
+
+				except Exception as e:
+					print(e)
+					assert False, "Not a websocket 4008 error"
+
+				r = await asyncio.sleep(0.01)
+
+
+		async def receive():
+			while st.session_state['run']:
+				try:
+					result_str = await _ws.recv()
+					result = json.loads(result_str)['text']
+
+					if json.loads(result_str)['message_type']=='FinalTranscript':
+						# print(result)
+						st.session_state['text'] += result
+						print(result)
+						# st.markdown(st.session_state['text'])
+						st.session_state['run'] = False
+
+				except websockets.exceptions.ConnectionClosedError as e:
+					print(e)
+					assert e.code == 4008
+					break
+
+				except Exception as e:
+					print(e)
+					assert False, "Not a websocket 4008 error"
+			
+		send_result, receive_result = await asyncio.gather(send(), receive())
+
+
+asyncio.run(send_receive())
 
 ### CHAT UPDATED HERE
 def getReply():
@@ -79,10 +171,10 @@ if __name__ == "__main__":
         # print(st.session_state['history'])
         st.text_input("",
                       key="input_text",
+                      value=st.session_state['text'],
                       on_change=getReply,
                       placeholder="Ask me a question...like 'how far away is the moon'")
-        record_start = st.button("Start")
-        record_stop = st.button("Stop")
+        record_start = st.button("Record",on_click=start_listening)
         download_notes_csv = st.session_state['notes']
         download_notes_csv = download_notes_csv.replace("\n\t", ",")
         st.download_button('Download', download_notes_csv)

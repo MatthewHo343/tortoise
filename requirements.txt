@@ -33,6 +33,7 @@ waitress==2.1.2
 beautifulsoup4==4.11.1
 cohere==2.8.0
 Pillow==9.3.0
+portaudio==19.7.0
 pyaudio==0.2.12
 pytesseract==0.3.10
 websockets==10.1
